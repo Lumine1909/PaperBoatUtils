@@ -1,0 +1,13 @@
+name: PaperBoatUtils
+version: 1.1
+main: io.github.lumine1909.PaperBoatUtils
+api-version: 1.19
+authors:
+  - Lumine1909
+commands:
+  spawnboat:
+permissions:
+  boatutils.admin:
+    default: op
+  boatutils.boat:
+    default: true
