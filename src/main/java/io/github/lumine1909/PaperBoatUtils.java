@@ -358,5 +358,6 @@ public class PaperBoatUtils extends JavaPlugin {
     public void onDisable() {
         SpigotConfig.movedTooQuicklyMultiplier = tooQuicklyBackup;
         SpigotConfig.movedWronglyThreshold = wronglyBackup;
+        PacketHandler.disable();
     }
 }

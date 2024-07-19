@@ -57,16 +57,19 @@ public class PacketHandler {
                 super.channelRead(ctx, msg);
                 return;
             }
-            if (packet.getIdentifier().equals(PaperBoatUtils.modKey)) {
-                int version = ServerboundPackets.handleVersionPacket(packet.getData());
-                if (version == -1) {
-                    //PaperBoatUtils.instance.getLogger().warning("Failed to handle version packet of a player ");
-                    return;
-                }
-                //PaperBoatUtils.instance.getLogger().info("Player joined with version " + version);
-                modedChannels.add(channel);
-                Util.sendSettings(channel);
+            if (!packet.getIdentifier().equals(PaperBoatUtils.modKey)) {
+                super.channelRead(ctx, msg);
+                return;
             }
+            int version = ServerboundPackets.handleVersionPacket(packet.getData());
+            if (version == -1) {
+                super.channelRead(ctx, msg);
+                //PaperBoatUtils.instance.getLogger().warning("Failed to handle version packet of a player ");
+                return;
+            }
+            //PaperBoatUtils.instance.getLogger().info("Player joined with version " + version);
+            modedChannels.add(channel);
+            Util.sendSettings(channel);
         }
     }
 
@@ -77,6 +80,13 @@ public class PacketHandler {
         ChannelInitializeListenerHolder.addListener(Key.key("boatutils:packet_handler"), channel -> {
             channel.pipeline().addBefore("packet_handler", "boatutils_handler", new PacketManager(channel));
         });
+    }
+
+    public static void disable() {
+        for (Channel channel : modedChannels) {
+            channel.pipeline().remove("boatutils_handler");
+        }
+        modedChannels.clear();
     }
 
     public static void syncPacket(ClientboundCustomPayloadPacket packet) {
