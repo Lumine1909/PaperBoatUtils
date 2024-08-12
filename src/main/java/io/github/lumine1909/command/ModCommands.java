@@ -9,7 +9,8 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -31,7 +32,7 @@ public class ModCommands {
                             FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                             buf.writeShort(ClientboundPackets.SET_STEP_HEIGHT.ordinal());
                             buf.writeFloat(size);
-                            PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                            PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                             return 1;
                         })
                 )
@@ -44,7 +45,7 @@ public class ModCommands {
                     PaperBoatUtils.resetSettings();
                     FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                     buf.writeShort(ClientboundPackets.RESET.ordinal());
-                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                     return 1;
                 })
         );
@@ -57,7 +58,7 @@ public class ModCommands {
                             FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                             buf.writeShort(ClientboundPackets.SET_DEFAULT_SLIPPERINESS.ordinal());
                             buf.writeFloat(PaperBoatUtils.defaultSlipperiness);
-                            PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                            PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                             return 1;
                         })
                 )
@@ -75,7 +76,7 @@ public class ModCommands {
                     buf.writeShort(ClientboundPackets.SET_BLOCKS_SLIPPERINESS.ordinal());
                     buf.writeFloat(slipperiness);
                     buf.writeUtf(blocks);
-                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                     return 1;
                 })))
         );
@@ -89,7 +90,7 @@ public class ModCommands {
                     FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                     buf.writeShort(ClientboundPackets.SET_AIR_CONTROL.ordinal());
                     buf.writeBoolean(enabled);
-                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                     return 1;
                 }))
         );
@@ -103,7 +104,7 @@ public class ModCommands {
                     FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                     buf.writeShort(ClientboundPackets.SET_BOAT_WATER_ELEVATION.ordinal());
                     buf.writeBoolean(enabled);
-                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                     return 1;
                 }))
         );
@@ -117,7 +118,7 @@ public class ModCommands {
                     FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                     buf.writeShort(ClientboundPackets.SET_BOAT_FALL_DAMAGE.ordinal());
                     buf.writeBoolean(enabled);
-                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                     return 1;
                 }))
         );
@@ -131,7 +132,7 @@ public class ModCommands {
                             FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                             buf.writeShort(ClientboundPackets.SET_BOAT_JUMP_FORCE.ordinal());
                             buf.writeFloat(force);
-                            PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                            PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                             return 1;
                         })
                 )
@@ -156,7 +157,7 @@ public class ModCommands {
                     FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                     buf.writeShort(ClientboundPackets.SET_MODE.ordinal());
                     buf.writeShort(mode.ordinal());
-                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                     return 1;
                 }))
         );
@@ -170,7 +171,7 @@ public class ModCommands {
                     FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                     buf.writeShort(ClientboundPackets.SET_GRAVITY.ordinal());
                     buf.writeDouble(gravity);
-                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                     return 1;
                 }))
         );
@@ -184,7 +185,7 @@ public class ModCommands {
                             FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                             buf.writeShort(ClientboundPackets.SET_YAW_ACCEL.ordinal());
                             buf.writeFloat(accel);
-                            PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                            PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                             return 1;
                         })
                 )
@@ -199,7 +200,7 @@ public class ModCommands {
                             FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                             buf.writeShort(ClientboundPackets.SET_FORWARD_ACCEL.ordinal());
                             buf.writeFloat(accel);
-                            PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                            PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                             return 1;
                         })
                 )
@@ -214,7 +215,7 @@ public class ModCommands {
                             FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                             buf.writeShort(ClientboundPackets.SET_BACKWARD_ACCEL.ordinal());
                             buf.writeFloat(accel);
-                            PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                            PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                             return 1;
                         })
                 )
@@ -229,7 +230,7 @@ public class ModCommands {
                             FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                             buf.writeShort(ClientboundPackets.SET_TURN_ACCEL.ordinal());
                             buf.writeFloat(accel);
-                            PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                            PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                             return 1;
                         })
                 )
@@ -244,7 +245,7 @@ public class ModCommands {
                     FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                     buf.writeShort(ClientboundPackets.ALLOW_ACCEL_STACKING.ordinal());
                     buf.writeBoolean(allow);
-                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                     return 1;
                 }))
         );
@@ -254,7 +255,7 @@ public class ModCommands {
             if (player == null) return 0;
             FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
             buf.writeShort(ClientboundPackets.RESEND_VERSION.ordinal());
-            PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+            PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
             return 1;
         }));
 
@@ -267,7 +268,7 @@ public class ModCommands {
                     FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                     buf.writeShort(ClientboundPackets.SET_UNDERWATER_CONTROL.ordinal());
                     buf.writeBoolean(enabled);
-                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                     return 1;
                 }))
         );
@@ -281,7 +282,7 @@ public class ModCommands {
                     FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                     buf.writeShort(ClientboundPackets.SET_SURFACE_WATER_CONTROL.ordinal());
                     buf.writeBoolean(enabled);
-                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                     return 1;
                 }))
         );
@@ -306,7 +307,7 @@ public class ModCommands {
                     FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                     buf.writeShort(ClientboundPackets.SET_EXCLUSIVE_MODE.ordinal());
                     buf.writeShort(mode.ordinal());
-                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                     return 1;
                 }))
         );
@@ -320,7 +321,7 @@ public class ModCommands {
                     FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                     buf.writeShort(ClientboundPackets.SET_COYOTE_TIME.ordinal());
                     buf.writeInt(time);
-                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                     return 1;
                 }))
         );
@@ -334,7 +335,7 @@ public class ModCommands {
                     FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                     buf.writeShort(ClientboundPackets.SET_WATER_JUMPING.ordinal());
                     buf.writeBoolean(enabled);
-                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                     return 1;
                 }))
         );
@@ -348,7 +349,7 @@ public class ModCommands {
                             FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                             buf.writeShort(ClientboundPackets.SET_SWIM_FORCE.ordinal());
                             buf.writeFloat(force);
-                            PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                            PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                             return 1;
                         })
                 )
@@ -364,7 +365,7 @@ public class ModCommands {
                     FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                     buf.writeShort(ClientboundPackets.REMOVE_BLOCKS_SLIPPERINESS.ordinal());
                     buf.writeUtf(blocks);
-                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                     return 1;
                 }))
         );
@@ -376,7 +377,7 @@ public class ModCommands {
                     PaperBoatUtils.clearSlipperinessMap();
                     FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                     buf.writeShort(ClientboundPackets.CLEAR_SLIPPERINESS.ordinal());
-                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                     return 1;
                 })
         );
@@ -404,7 +405,7 @@ public class ModCommands {
                         Modes.setMode(mode);
                         buf.writeShort(mode.ordinal());
                     }
-                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                     return 1;
                 }))
         );
@@ -433,7 +434,7 @@ public class ModCommands {
                         Modes.setMode(mode);
                         buf.writeShort(mode.ordinal());
                     }
-                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                     return 1;
                 }))
         );
@@ -461,7 +462,7 @@ public class ModCommands {
                     buf.writeShort(setting.ordinal());
                     buf.writeFloat(value);
                     buf.writeUtf(blocks);
-                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(PaperBoatUtils.modKey, buf));
+                    PacketHandler.syncPacket(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(PaperBoatUtils.modKey, buf)));
                     return 1;
                 }))))
         );

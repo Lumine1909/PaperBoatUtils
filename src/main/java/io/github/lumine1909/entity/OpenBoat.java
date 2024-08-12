@@ -22,7 +22,7 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_19_R3.util.CraftLocation;
+import org.bukkit.craftbukkit.v1_20_R3.util.CraftLocation;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 
@@ -40,7 +40,7 @@ public class OpenBoat extends Boat {
     private Boat.Status hookGetStatus(Boat instance, boolean is_tick) {
         instance.setMaxUpStep(0f);
         // Mojang name: getStatus
-        Boat.Status status1 = (Status) Util.invokeSuperPrivateMethod(this, "y", null, null);
+        Boat.Status status1 = (Status) Util.invokeSuperPrivateMethod(this, "C", null, null);
         Boat.Status originalStatus = status1;
         if (!PaperBoatUtils.instance.isEnabled() || !(getFirstPassenger() instanceof ServerPlayer player))
             return status1;
@@ -52,7 +52,7 @@ public class OpenBoat extends Boat {
         if (status1 == Boat.Status.UNDER_WATER || status1 == Boat.Status.UNDER_FLOWING_WATER) {
             if (PaperBoatUtils.waterElevation) {
                 // Mojang name: waterLevel
-                double waterLevel = (double) Util.getSuperPrivateField(this, "aJ");
+                double waterLevel = (double) Util.getSuperPrivateField(this, "aK");
                 Util.setSuperPrivateField(this, "aJ", waterLevel + 1.0);
                 instance.setPos(instance.getX(), waterLevel, instance.getZ());
                 Vec3 velocity = instance.getDeltaMovement();
@@ -63,7 +63,7 @@ public class OpenBoat extends Boat {
             return status1;
         }
         // Mojang name: checkInWater
-        if ((boolean) Util.invokeSuperPrivateMethod(this, "z", null, null)) {
+        if ((boolean) Util.invokeSuperPrivateMethod(this, "D", null, null)) {
             if (PaperBoatUtils.waterElevation) {
                 Vec3 velocity = instance.getDeltaMovement();
                 instance.setDeltaMovement(velocity.x, 0.0, velocity.z);
@@ -73,7 +73,7 @@ public class OpenBoat extends Boat {
 
         if (originalStatus == Boat.Status.IN_AIR && PaperBoatUtils.airControl) {
             // Mojang name: landFriction
-            Util.setSuperPrivateField(this, "aK", PaperBoatUtils.getBlockSlipperiness("minecraft:air"));
+            Util.setSuperPrivateField(this, "aL", PaperBoatUtils.getBlockSlipperiness("minecraft:air"));
             status1 = Boat.Status.ON_LAND;
         }
 
@@ -113,7 +113,7 @@ public class OpenBoat extends Boat {
     @Override
     public void tick() {
         // Mojang name: oldStatus
-        Util.setSuperPrivateField(this, "aM", status);
+        Util.setSuperPrivateField(this, "aN", status);
         this.status = this.hookGetStatus(this, true);
         // Mojang name: outOfControlTicks
         float f = (float) Util.getSuperPrivateField(this, "q");
@@ -125,7 +125,7 @@ public class OpenBoat extends Boat {
             Util.setSuperPrivateField(this, "q", f);
         }
 
-        if (!this.level.isClientSide && f >= 60.0F) {
+        if (!this.level().isClientSide && f >= 60.0F) {
             this.ejectPassengers();
         }
 
@@ -139,17 +139,16 @@ public class OpenBoat extends Boat {
 
         baseTick();
         // Mojang name: tickLerp
-        Util.invokeSuperPrivateMethod(this, "x", null, null);
+        Util.invokeSuperPrivateMethod(this, "B", null, null);
         if (this.isControlledByLocalInstance()) {
             if (!(this.getFirstPassenger() instanceof Player)) {
                 this.setPaddleState(false, false);
             }
 
             floatBoat();
-            if (this.level.isClientSide) {
-                // Mojang name: controlBoat
-                Util.invokeSuperPrivateMethod(this, "D", null, null);
-                this.level.sendPacketToServer(new ServerboundPaddleBoatPacket(this.getPaddleState(0), this.getPaddleState(1)));
+            if (this.level().isClientSide) {
+                controlBoat();
+                this.level().sendPacketToServer(new ServerboundPaddleBoatPacket(this.getPaddleState(0), this.getPaddleState(1)));
             }
 
             this.move(MoverType.SELF, this.getDeltaMovement());
@@ -158,8 +157,8 @@ public class OpenBoat extends Boat {
         }
 
         // CraftBukkit start
-        org.bukkit.Server server = this.level.getCraftServer();
-        org.bukkit.World bworld = this.level.getWorld();
+        org.bukkit.Server server = this.level().getCraftServer();
+        org.bukkit.World bworld = this.level().getWorld();
 
         Location to = CraftLocation.toBukkit(this.position(), bworld, this.getYRot(), this.getXRot());
         Vehicle vehicle = (Vehicle) this.getBukkitEntity();
@@ -175,7 +174,7 @@ public class OpenBoat extends Boat {
         // CraftBukkit end
 
         // Mojang name: tickBubbleColumn
-        Util.invokeSuperPrivateMethod(this, "w", null, null);
+        Util.invokeSuperPrivateMethod(this, "A", null, null);
 
         final float[] paddlePos = (float[]) Util.getSuperPrivateField(this, "o");
         for (int i = 0; i <= 1; ++i) {
@@ -188,7 +187,7 @@ public class OpenBoat extends Boat {
                         double d0 = i == 1 ? -vec3d.z : vec3d.z;
                         double d1 = i == 1 ? vec3d.x : -vec3d.x;
 
-                        this.level.playSound((Player) null, this.getX() + d0, this.getY(), this.getZ() + d1, soundeffect, this.getSoundSource(), 1.0F, 0.8F + 0.4F * this.random.nextFloat());
+                        this.level().playSound((Player) null, this.getX() + d0, this.getY(), this.getZ() + d1, soundeffect, this.getSoundSource(), 1.0F, 0.8F + 0.4F * this.random.nextFloat());
                     }
                 }
 
@@ -199,10 +198,10 @@ public class OpenBoat extends Boat {
         }
 
         this.checkInsideBlocks();
-        List<Entity> list = this.level.getEntities((Entity) this, this.getBoundingBox().inflate(0.20000000298023224D, -0.009999999776482582D, 0.20000000298023224D), EntitySelector.pushableBy(this));
+        List<Entity> list = this.level().getEntities((Entity) this, this.getBoundingBox().inflate(0.20000000298023224D, -0.009999999776482582D, 0.20000000298023224D), EntitySelector.pushableBy(this));
 
         if (!list.isEmpty()) {
-            boolean flag = !this.level.isClientSide && !(this.getControllingPassenger() instanceof Player);
+            boolean flag = !this.level().isClientSide && !(this.getControllingPassenger() instanceof Player);
 
             for (int j = 0; j < list.size(); ++j) {
                 Entity entity = (Entity) list.get(j);
@@ -242,9 +241,9 @@ public class OpenBoat extends Boat {
                     for (int k2 = k; k2 < l; ++k2) {
                         if (j2 <= 0 || k2 != k && k2 != l - 1) {
                             blockposition_mutableblockposition.set(l1, k2, i2);
-                            BlockState iblockdata = this.level.getBlockState(blockposition_mutableblockposition);
+                            BlockState iblockdata = this.level().getBlockState(blockposition_mutableblockposition);
 
-                            if (!(iblockdata.getBlock() instanceof WaterlilyBlock) && Shapes.joinIsNotEmpty(iblockdata.getCollisionShape(this.level, blockposition_mutableblockposition).move((double) l1, (double) k2, (double) i2), voxelshape, BooleanOp.AND)) {
+                            if (!(iblockdata.getBlock() instanceof WaterlilyBlock) && Shapes.joinIsNotEmpty(iblockdata.getCollisionShape(this.level(), blockposition_mutableblockposition).move((double) l1, (double) k2, (double) i2), voxelshape, BooleanOp.AND)) {
                                 f += PaperBoatUtils.instance.isEnabled() ? PaperBoatUtils.getBlockSlipperiness(BuiltInRegistries.BLOCK.getKey(iblockdata.getBlock()).toString()) : iblockdata.getBlock().getFriction();
                                 ++k1;
                             }
@@ -274,7 +273,7 @@ public class OpenBoat extends Boat {
         Util.setSuperPrivateField(this, "p", 0.05f);
 
         // Mojang name: oldStatus
-        Status status1 = (Status) Util.getSuperPrivateField(this, "aM");
+        Status status1 = (Status) Util.getSuperPrivateField(this, "aN");
 
 
         if (status1 == Boat.Status.IN_AIR && this.status != Boat.Status.IN_AIR && this.status != Boat.Status.ON_LAND) {
@@ -282,11 +281,11 @@ public class OpenBoat extends Boat {
             this.move(MoverType.SELF, new Vec3(0.0, ((double) (this.getWaterLevelAbove() - this.getBbHeight()) + 0.101D) - this.getY(), 0.0)); // Paper
             this.setDeltaMovement(this.getDeltaMovement().multiply(1.0D, 0.0D, 1.0D)); // Paper
             // Mojang name: lastYd
-            Util.setSuperPrivateField(this, "aN", 0.0);
+            Util.setSuperPrivateField(this, "aO", 0.0);
             this.status = Boat.Status.IN_WATER;
         } else {
             // Mojang name: waterLevel
-            double waterLevel = (double) Util.getSuperPrivateField(this, "aJ");
+            double waterLevel = (double) Util.getSuperPrivateField(this, "aK");
             // Mojang name: invFriction
             float invFriction = (float) Util.getSuperPrivateField(this, "p");
             if (this.status == Boat.Status.IN_WATER) {
@@ -306,12 +305,12 @@ public class OpenBoat extends Boat {
                 Util.setSuperPrivateField(this, "p", 0.9f);
             } else if (this.status == Boat.Status.ON_LAND) {
                 // Mojang name: landFriction
-                float landFriction = (float) Util.getSuperPrivateField(this, "aK");
+                float landFriction = (float) Util.getSuperPrivateField(this, "aL");
                 // Mojang name: invFriction
                 Util.setSuperPrivateField(this, "p", landFriction);
                 if (this.getControllingPassenger() instanceof Player) {
                     // Mojang name: landFriction
-                    Util.setSuperPrivateField(this, "aK", landFriction / 2.0);
+                    Util.setSuperPrivateField(this, "aL", landFriction / 2.0);
                 }
             }
 
@@ -351,10 +350,10 @@ public class OpenBoat extends Boat {
             float f = 0.0F;
 
             // Mojang name is local var name
-            boolean inputLeft = (boolean) Util.getSuperPrivateField(this, "aF");
-            boolean inputRight = (boolean) Util.getSuperPrivateField(this, "aG");
-            boolean inputUp = (!PaperBoatUtils.instance.isEnabled() || PaperBoatUtils.allowAccelStacking) && (boolean) Util.getSuperPrivateField(this, "aH");
-            boolean inputDown = (!PaperBoatUtils.instance.isEnabled() || PaperBoatUtils.allowAccelStacking) && (boolean) Util.getSuperPrivateField(this, "aI");
+            boolean inputLeft = (boolean) Util.getSuperPrivateField(this, "aG");
+            boolean inputRight = (boolean) Util.getSuperPrivateField(this, "aH");
+            boolean inputUp = (!PaperBoatUtils.instance.isEnabled() || PaperBoatUtils.allowAccelStacking) && (boolean) Util.getSuperPrivateField(this, "aI");
+            boolean inputDown = (!PaperBoatUtils.instance.isEnabled() || PaperBoatUtils.allowAccelStacking) && (boolean) Util.getSuperPrivateField(this, "aJ");
             float deltaRotation = (float) Util.getSuperPrivateField(this, "r");
 
             if (inputLeft) {

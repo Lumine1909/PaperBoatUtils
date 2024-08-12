@@ -8,7 +8,8 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -112,8 +113,8 @@ public class PaperBoatUtils extends JavaPlugin {
                 for (int s = k; s < l; ++s) {
                     if (r > 0 && (s == k || s == l - 1)) continue;
                     mutable.set(p, s, q);
-                    BlockState blockState = instance.getLevel().getBlockState(mutable);
-                    if (blockState.getBlock() instanceof WaterlilyBlock || !Shapes.joinIsNotEmpty(blockState.getCollisionShape(instance.getLevel(), mutable).move(p, s, q), voxelShape, BooleanOp.AND))
+                    BlockState blockState = instance.level().getBlockState(mutable);
+                    if (blockState.getBlock() instanceof WaterlilyBlock || !Shapes.joinIsNotEmpty(blockState.getCollisionShape(instance.level(), mutable).move(p, s, q), voxelShape, BooleanOp.AND))
                         continue;
                     f += getPerBlockForBlock(setting, BuiltInRegistries.BLOCK.getKey(blockState.getBlock()).toString());
                     ++o;
@@ -233,7 +234,7 @@ public class PaperBoatUtils extends JavaPlugin {
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         buf.writeShort(ServerboundPackets.VERSION.ordinal());
         buf.writeInt(VERSION);
-        player.connection.send(new ClientboundCustomPayloadPacket(new ResourceLocation("openboatutils", "settings"), buf));
+        player.connection.send(new ClientboundCustomPayloadPacket(new ServerboundCustomPayloadPacket.UnknownPayload(new ResourceLocation("openboatutils", "settings"), buf)));
     }
 
     public static void setGravityForce(double g) {
