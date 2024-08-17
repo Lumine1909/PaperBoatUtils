@@ -348,8 +348,8 @@ public class PaperBoatUtils extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        SpigotConfig.movedWronglyThreshold = Double.MAX_VALUE;
-        SpigotConfig.movedTooQuicklyMultiplier = Double.MAX_VALUE;
+        //SpigotConfig.movedWronglyThreshold = Double.MAX_VALUE;
+        //SpigotConfig.movedTooQuicklyMultiplier = Double.MAX_VALUE;
         ModCommands.registerCommands();
         PluginCommands.registerCommands();
         PacketHandler.init();
