@@ -21,6 +21,10 @@ public enum Modes {
     BOOSTER_BLOCKS,//17
     DEFAULT_ICE,//18
     DEFAULT_BLUE_ICE,//19
+    NOCOL_BOATS_AND_PLAYERS,//20
+    NOCOL_ALL_ENTITIES,//21
+    BA_JANKLESS,//22
+    BA_BLUE_JANKLESS//23
     ;
 
     public static void setMode(Modes mode) {
@@ -152,6 +156,26 @@ public enum Modes {
                 return;
             case DEFAULT_BLUE_ICE:
                 PaperBoatUtils.setAllBlocksSlipperiness(0.985f);
+                return;
+            case NOCOL_BOATS_AND_PLAYERS:
+                PaperBoatUtils.setCollisionMode(CollisionMode.NO_BOATS_OR_PLAYERS);
+                return;
+            case NOCOL_ALL_ENTITIES:
+                PaperBoatUtils.setCollisionMode(CollisionMode.NO_ENTITIES);
+                return;
+            case BA_JANKLESS:
+                PaperBoatUtils.setCanStepWhileFalling(true);
+                PaperBoatUtils.setAirControl(true);
+                PaperBoatUtils.setBlockSlipperiness("minecraft:air", 0.98f);
+                PaperBoatUtils.setStepSize(1.25f);
+                PaperBoatUtils.setWaterElevation(true);
+                return;
+            case BA_BLUE_JANKLESS:
+                PaperBoatUtils.setCanStepWhileFalling(true);
+                PaperBoatUtils.setAirControl(true);
+                PaperBoatUtils.setBlockSlipperiness("minecraft:air", 0.989f);
+                PaperBoatUtils.setStepSize(1.25f);
+                PaperBoatUtils.setWaterElevation(true);
                 return;
         }
     }

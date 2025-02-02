@@ -2,7 +2,6 @@ package io.github.lumine1909.network;
 
 import io.github.lumine1909.PaperBoatUtils;
 import io.github.lumine1909.Util;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -11,8 +10,9 @@ import net.kyori.adventure.key.Key;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.custom.DiscardedPayload;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
@@ -22,7 +22,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class PacketHandler {
+
     static class PlayerListener implements Listener {
+
         /*
         @EventHandler
         public void onPlayerJoin(PlayerJoinEvent e) {
@@ -47,6 +49,7 @@ public class PacketHandler {
     }
 
     static class PacketManager extends ChannelDuplexHandler {
+
         private final Channel channel;
 
         public PacketManager(Channel channel) {
@@ -55,16 +58,15 @@ public class PacketHandler {
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-            if (!(msg instanceof ServerboundCustomPayloadPacket packet)) {
+            if (!(msg instanceof ServerboundCustomPayloadPacket packet && packet.payload() instanceof DiscardedPayload payload)) {
                 super.channelRead(ctx, msg);
                 return;
             }
-            if (!packet.payload().id().equals(PaperBoatUtils.modKey)) {
+            if (!payload.id().equals(PaperBoatUtils.modKey)) {
                 super.channelRead(ctx, msg);
                 return;
             }
-            FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-            packet.payload().write(buf);
+            FriendlyByteBuf buf = new FriendlyByteBuf(payload.data());
             int version = ServerboundPackets.handleVersionPacket(buf);
             if (version == -1) {
                 super.channelRead(ctx, msg);

@@ -4,6 +4,7 @@ import net.minecraft.network.FriendlyByteBuf;
 
 public enum ServerboundPackets {
     VERSION;
+
     public static int handleVersionPacket(FriendlyByteBuf buf) {
         try {
             short packetID = buf.readShort();
