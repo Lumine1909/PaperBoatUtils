@@ -4,7 +4,9 @@ plugins {
 }
 
 group = "io.github.lumine1909"
-version = "1.2.0"
+version = "1.2.1"
+
+paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.MOJANG_PRODUCTION
 
 repositories {
     mavenCentral()

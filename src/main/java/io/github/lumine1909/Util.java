@@ -48,21 +48,6 @@ public class Util {
         return null;
     }
 
-    public static Object invokeSuperNPrivateMethod(int superLevel, Object object, String methodName, Class<?>[] parameterTypes, Object[] parameters) {
-        try {
-            Class<?> clazz = object.getClass();
-            for (int i = 0; i < superLevel; i++) {
-                clazz = clazz.getSuperclass();
-            }
-            final Method m = clazz.getDeclaredMethod(methodName, parameterTypes);
-            m.setAccessible(true);
-            return m.invoke(object, parameters);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public static void addEntityToWorld(Entity nmsEntity, World world) {
         ServerLevel level = ((CraftWorld) world).getHandle();
         level.addFreshEntity(nmsEntity);

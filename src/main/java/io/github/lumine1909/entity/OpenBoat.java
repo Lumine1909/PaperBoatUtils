@@ -37,7 +37,7 @@ public class OpenBoat extends Boat {
 
     public OpenBoat(Level world, double x, double y, double z) {
         this(EntityType.OAK_BOAT, world, () -> Items.OAK_BOAT);
-        this.setPos(x, y, z);
+        setPos(x, y, z);
     }
 
     public OpenBoat(EntityType<? extends Boat> entityType, Level level, Supplier<Item> dropItem) {
@@ -203,13 +203,12 @@ public class OpenBoat extends Boat {
                     }
                 }
 
-                paddlePos[i] += 0.3926991F;
+                paddlePos[i] += ((float)Math.PI / 8F);
             } else {
                 paddlePos[i] = 0.0F;
             }
         }
 
-        Util.invokeSuperNPrivateMethod(4, this, "checkInsideBlocks", null, null);
         List<Entity> list = this.level().getEntities(this, this.getBoundingBox().inflate(0.20000000298023224D, -0.009999999776482582D, 0.20000000298023224D), EntitySelector.pushableBy(this));
 
         if (!list.isEmpty()) {

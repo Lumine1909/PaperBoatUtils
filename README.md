@@ -16,8 +16,10 @@ I'm very appreciate for your bugs or features issue, but before you open it in t
 
 **Further Developing**
 
-1. More version support: in order to get rid of disgusting spigot mappings name, this plugin only support paper 1.19.4. If you want support other version, you can open an issue or do it yourself.
+1. More version support: in order to get rid of disgusting spigot mappings name, this plugin only support paper 1.19.4, 1.20.4 and 1.21.4. If you want support other version, you can open an issue or do it yourself.
 ```
+// Becareful with the changes between different versions
+
 build.gradle.kts:
     paperweight.paperDevBundle("X.XX.X-R0.1-SNAPSHOT")
     
