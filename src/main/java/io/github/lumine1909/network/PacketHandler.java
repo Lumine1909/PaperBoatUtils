@@ -2,6 +2,7 @@ package io.github.lumine1909.network;
 
 import io.github.lumine1909.PaperBoatUtils;
 import io.github.lumine1909.Util;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -58,15 +59,19 @@ public class PacketHandler {
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-            if (!(msg instanceof ServerboundCustomPayloadPacket packet && packet.payload() instanceof DiscardedPayload payload)) {
+            if (!(msg instanceof ServerboundCustomPayloadPacket(
+                net.minecraft.network.protocol.common.custom.CustomPacketPayload payload
+            ) && payload instanceof DiscardedPayload(
+                net.minecraft.resources.ResourceLocation id, byte[] data
+            ))) {
                 super.channelRead(ctx, msg);
                 return;
             }
-            if (!payload.id().equals(PaperBoatUtils.modKey)) {
+            if (!id.equals(PaperBoatUtils.modKey)) {
                 super.channelRead(ctx, msg);
                 return;
             }
-            FriendlyByteBuf buf = new FriendlyByteBuf(payload.data());
+            FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.wrappedBuffer(data));
             int version = ServerboundPackets.handleVersionPacket(buf);
             if (version == -1) {
                 super.channelRead(ctx, msg);

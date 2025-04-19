@@ -25,9 +25,8 @@ import java.util.List;
 
 public class PaperBoatUtils extends JavaPlugin {
 
-
     public static final int VERSION = 11;
-    public static final ResourceLocation modKey = ResourceLocation.tryBuild("openboatutils","settings");
+    public static final ResourceLocation modKey = ResourceLocation.fromNamespaceAndPath("openboatutils","settings");
 
     public static boolean enabled = false;
     public static boolean fallDamage = true;
