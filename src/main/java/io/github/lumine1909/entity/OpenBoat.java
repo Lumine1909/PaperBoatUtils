@@ -54,7 +54,7 @@ public class OpenBoat extends Boat {
         // Mojang name: getStatus
         Boat.Status status1 = (Status) Util.invokeSuperPrivateMethod(this, "getStatus", null, null);
         Boat.Status originalStatus = status1;
-        if (!PaperBoatUtils.instance.isEnabled() || !(getFirstPassenger() instanceof ServerPlayer player))
+        if (!PaperBoatUtils.plugin.isEnabled() || !(getFirstPassenger() instanceof ServerPlayer player))
             return status1;
 
         if (is_tick) oncePerTick(instance, status1);
@@ -199,11 +199,11 @@ public class OpenBoat extends Boat {
                         double d0 = i == 1 ? -vec3d.z : vec3d.z;
                         double d1 = i == 1 ? vec3d.x : -vec3d.x;
 
-                        this.level().playSound((Player) null, this.getX() + d0, this.getY(), this.getZ() + d1, soundeffect, this.getSoundSource(), 1.0F, 0.8F + 0.4F * this.random.nextFloat());
+                        this.level().playSound(null, this.getX() + d0, this.getY(), this.getZ() + d1, soundeffect, this.getSoundSource(), 1.0F, 0.8F + 0.4F * this.random.nextFloat());
                     }
                 }
 
-                paddlePos[i] += ((float)Math.PI / 8F);
+                paddlePos[i] += ((float) Math.PI / 8F);
             } else {
                 paddlePos[i] = 0.0F;
             }
@@ -215,9 +215,9 @@ public class OpenBoat extends Boat {
             boolean flag = !this.level().isClientSide && !(this.getControllingPassenger() instanceof Player);
 
             for (int j = 0; j < list.size(); ++j) {
-                Entity entity = (Entity) list.get(j);
+                Entity entity = list.get(j);
 
-                if (!entity.hasPassenger((Entity) this)) {
+                if (!entity.hasPassenger(this)) {
                     if (flag && this.getPassengers().size() < this.getMaxPassengers() && !entity.isPassenger() && this.hasEnoughSpaceFor(entity) && entity instanceof LivingEntity && !(entity instanceof WaterAnimal) && !(entity instanceof Player)) {
                         entity.startRiding(this);
                     } else {
@@ -254,8 +254,8 @@ public class OpenBoat extends Boat {
                             blockposition_mutableblockposition.set(l1, k2, i2);
                             BlockState iblockdata = this.level().getBlockState(blockposition_mutableblockposition);
 
-                            if (!(iblockdata.getBlock() instanceof WaterlilyBlock) && Shapes.joinIsNotEmpty(iblockdata.getCollisionShape(this.level(), blockposition_mutableblockposition).move((double) l1, (double) k2, (double) i2), voxelshape, BooleanOp.AND)) {
-                                f += PaperBoatUtils.instance.isEnabled() ? PaperBoatUtils.getBlockSlipperiness(BuiltInRegistries.BLOCK.getKey(iblockdata.getBlock()).toString()) : iblockdata.getBlock().getFriction();
+                            if (!(iblockdata.getBlock() instanceof WaterlilyBlock) && Shapes.joinIsNotEmpty(iblockdata.getCollisionShape(this.level(), blockposition_mutableblockposition).move(l1, k2, i2), voxelshape, BooleanOp.AND)) {
+                                f += PaperBoatUtils.plugin.isEnabled() ? PaperBoatUtils.getBlockSlipperiness(BuiltInRegistries.BLOCK.getKey(iblockdata.getBlock()).toString()) : iblockdata.getBlock().getFriction();
                                 ++k1;
                             }
                         }
@@ -277,7 +277,7 @@ public class OpenBoat extends Boat {
 
     private void floatBoat() {
         double d0 = -0.03999999910593033D;
-        double d1 = PaperBoatUtils.instance.isEnabled() ? PaperBoatUtils.gravityForce : (this.isNoGravity() ? 0.0D : -0.03999999910593033D);
+        double d1 = PaperBoatUtils.plugin.isEnabled() ? PaperBoatUtils.gravityForce : (this.isNoGravity() ? 0.0D : -0.03999999910593033D);
         double d2 = 0.0D;
 
         // Mojang name: invFriction
@@ -343,14 +343,14 @@ public class OpenBoat extends Boat {
     }
 
     private float underwaterCheck(float ori) {
-        if (!PaperBoatUtils.instance.isEnabled() || !PaperBoatUtils.underwaterControl) {
+        if (!PaperBoatUtils.plugin.isEnabled() || !PaperBoatUtils.underwaterControl) {
             return ori;
         }
         return PaperBoatUtils.getBlockSlipperiness("minecraft:water");
     }
 
     private float surfacewaterCheck(float ori) {
-        if (!PaperBoatUtils.instance.isEnabled() || !PaperBoatUtils.surfaceWaterControl) {
+        if (!PaperBoatUtils.plugin.isEnabled() || !PaperBoatUtils.surfaceWaterControl) {
             return ori;
         }
         return PaperBoatUtils.getBlockSlipperiness("minecraft:water");
@@ -363,8 +363,8 @@ public class OpenBoat extends Boat {
             // Mojang name is local var name
             boolean inputLeft = (boolean) Util.getSuperPrivateField(this, "inputLeft");
             boolean inputRight = (boolean) Util.getSuperPrivateField(this, "inputRight");
-            boolean inputUp = (!PaperBoatUtils.instance.isEnabled() || PaperBoatUtils.allowAccelStacking) && (boolean) Util.getSuperPrivateField(this, "aI");
-            boolean inputDown = (!PaperBoatUtils.instance.isEnabled() || PaperBoatUtils.allowAccelStacking) && (boolean) Util.getSuperPrivateField(this, "aJ");
+            boolean inputUp = (!PaperBoatUtils.plugin.isEnabled() || PaperBoatUtils.allowAccelStacking) && (boolean) Util.getSuperPrivateField(this, "aI");
+            boolean inputDown = (!PaperBoatUtils.plugin.isEnabled() || PaperBoatUtils.allowAccelStacking) && (boolean) Util.getSuperPrivateField(this, "aJ");
             float deltaRotation = (float) Util.getSuperPrivateField(this, "deltaRotation");
 
             if (inputLeft) {
@@ -380,20 +380,20 @@ public class OpenBoat extends Boat {
             }
 
             if (inputLeft != inputRight && !inputUp && !inputDown) {
-                f += PaperBoatUtils.instance.isEnabled() ? PaperBoatUtils.forwardsAcceleration : 0.005F;
+                f += PaperBoatUtils.plugin.isEnabled() ? PaperBoatUtils.forwardsAcceleration : 0.005F;
             }
 
             this.setYRot(this.getYRot() + deltaRotation);
 
             if (inputUp) {
-                f += PaperBoatUtils.instance.isEnabled() ? PaperBoatUtils.forwardsAcceleration : 0.04F;
+                f += PaperBoatUtils.plugin.isEnabled() ? PaperBoatUtils.forwardsAcceleration : 0.04F;
             }
 
             if (inputDown) {
-                f -= PaperBoatUtils.instance.isEnabled() ? PaperBoatUtils.backwardsAcceleration : 0.005F;
+                f -= PaperBoatUtils.plugin.isEnabled() ? PaperBoatUtils.backwardsAcceleration : 0.005F;
             }
 
-            this.setDeltaMovement(this.getDeltaMovement().add((double) (Mth.sin(-this.getYRot() * 0.017453292F) * f), 0.0D, (double) (Mth.cos(this.getYRot() * 0.017453292F) * f)));
+            this.setDeltaMovement(this.getDeltaMovement().add(Mth.sin(-this.getYRot() * 0.017453292F) * f, 0.0D, Mth.cos(this.getYRot() * 0.017453292F) * f));
             this.setPaddleState(inputRight && !inputLeft || inputUp, inputLeft && !inputRight || inputUp);
         }
     }

@@ -1,19 +1,12 @@
 package io.github.lumine1909.network;
 
-import io.github.lumine1909.PaperBoatUtils;
 import io.github.lumine1909.Util;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelDuplexHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.papermc.paper.network.ChannelInitializeListenerHolder;
-import net.kyori.adventure.key.Key;
+import io.github.lumine1909.messageutil.api.MessageReceiver;
+import io.github.lumine1909.messageutil.object.PacketContext;
+import io.github.lumine1909.messageutil.object.PacketEvent;
+import io.github.lumine1909.messageutil.util.ProtocolUtil;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
-import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
-import net.minecraft.network.protocol.common.custom.DiscardedPayload;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
@@ -22,87 +15,47 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import java.util.HashSet;
 import java.util.Set;
 
-public class PacketHandler {
+import static io.github.lumine1909.PaperBoatUtils.MOD_ID;
+import static io.github.lumine1909.PaperBoatUtils.plugin;
 
-    static class PlayerListener implements Listener {
+public class PacketHandler extends MessageReceiver {
 
-        /*
-        @EventHandler
-        public void onPlayerJoin(PlayerJoinEvent e) {
-            Channel channel = ((CraftPlayer) e.getPlayer()).getHandle().connection.connection.channel;
-            channel.pipeline().addBefore("packet_handler", "boatutil_handler", new PacketManager(e.getPlayer()));
+    public static final Set<String> ACTIVE_PLAYERS = new HashSet<>();
+
+    public static void syncPacket(FriendlyByteBuf buf) {
+        for (String playerName : ACTIVE_PLAYERS) {
+            ProtocolUtil.send(playerName, MOD_ID, buf);
         }
+    }
 
-         */
-        @EventHandler
-        public void onPlayerQuit(PlayerQuitEvent e) {
-            Channel channel = ((CraftPlayer) e.getPlayer()).getHandle().connection.connection.channel;
-            modedChannels.remove(channel);
+    @Override
+    public boolean isActive() {
+        return true;
+    }
+
+    @Bytebuf(key = MOD_ID)
+    public void handleModMessage(PacketContext context, PacketEvent event, FriendlyByteBuf buf) {
+        int version = ServerboundPackets.handleVersionPacket(buf);
+        if (version == -1) {
+            return;
         }
+        ACTIVE_PLAYERS.add(context.name().orElseThrow());
+        event.setCancelled(true);
+    }
+
+    public static class PlayerListener implements Listener {
 
         @EventHandler
         public void onChangeWorld(PlayerChangedWorldEvent e) {
-            Bukkit.getScheduler().runTask(PaperBoatUtils.instance, () -> {
-                Channel channel = ((CraftPlayer) e.getPlayer()).getHandle().connection.connection.channel;
-                Util.sendSettings(channel);
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                String playerName = e.getPlayer().getName();
+                Util.sendSettings(playerName);
             });
         }
-    }
 
-    static class PacketManager extends ChannelDuplexHandler {
-
-        private final Channel channel;
-
-        public PacketManager(Channel channel) {
-            this.channel = channel;
-        }
-
-        @Override
-        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-            if (!(msg instanceof ServerboundCustomPayloadPacket(
-                net.minecraft.network.protocol.common.custom.CustomPacketPayload payload
-            ) && payload instanceof DiscardedPayload(
-                net.minecraft.resources.ResourceLocation id, byte[] data
-            ))) {
-                super.channelRead(ctx, msg);
-                return;
-            }
-            if (!id.equals(PaperBoatUtils.modKey)) {
-                super.channelRead(ctx, msg);
-                return;
-            }
-            FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.wrappedBuffer(data));
-            int version = ServerboundPackets.handleVersionPacket(buf);
-            if (version == -1) {
-                super.channelRead(ctx, msg);
-                //PaperBoatUtils.instance.getLogger().warning("Failed to handle version packet of a player ");
-                return;
-            }
-            //PaperBoatUtils.instance.getLogger().info("Player joined with version " + version);
-            modedChannels.add(channel);
-            Util.sendSettings(channel);
-        }
-    }
-
-    private static final Set<Channel> modedChannels = new HashSet<>();
-
-    public static void init() {
-        Bukkit.getPluginManager().registerEvents(new PlayerListener(), PaperBoatUtils.instance);
-        ChannelInitializeListenerHolder.addListener(Key.key("boatutils:packet_handler"), channel -> {
-            channel.pipeline().addBefore("packet_handler", "boatutils_handler", new PacketManager(channel));
-        });
-    }
-
-    public static void disable() {
-        for (Channel channel : modedChannels) {
-            channel.pipeline().remove("boatutils_handler");
-        }
-        modedChannels.clear();
-    }
-
-    public static void syncPacket(ClientboundCustomPayloadPacket packet) {
-        for (Channel channel : modedChannels) {
-            channel.writeAndFlush(packet);
+        @EventHandler
+        public void onPlayerQuit(PlayerQuitEvent e) {
+            ACTIVE_PLAYERS.remove(e.getPlayer().getName());
         }
     }
 }

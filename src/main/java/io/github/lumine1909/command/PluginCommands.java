@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class PluginCommands implements TabExecutor {
+
     public static void registerCommands() {
         PluginCommands commands = new PluginCommands();
         Bukkit.getPluginCommand("spawnboat").setExecutor(commands);

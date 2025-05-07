@@ -2,10 +2,10 @@ package io.github.lumine1909;
 
 import io.github.lumine1909.command.ModCommands;
 import io.github.lumine1909.command.PluginCommands;
+import io.github.lumine1909.messageutil.api.MessageUtil;
 import io.github.lumine1909.network.PacketHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.level.block.Block;
@@ -15,19 +15,20 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.spigotmc.SpigotConfig;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class PaperBoatUtils extends JavaPlugin {
 
-    public static final int VERSION = 11;
-    public static final ResourceLocation modKey = ResourceLocation.fromNamespaceAndPath("openboatutils","settings");
-
+    public static final int VERSION = 13;
+    public static final String MOD_ID = "openboatutils:settings";
+    private static final double wronglyBackup = SpigotConfig.movedWronglyThreshold;
+    private static final double tooQuicklyBackup = SpigotConfig.movedTooQuicklyMultiplier;
     public static boolean enabled = false;
     public static boolean fallDamage = true;
     public static boolean waterElevation = false;
@@ -49,26 +50,18 @@ public class PaperBoatUtils extends JavaPlugin {
     public static float swimForce = 0.0f;
     public static CollisionMode collision = CollisionMode.VANILLA;
     public static boolean canStepWhileFalling = false; // Setting to true fixes "boatutils jank"
-
     public static HashMap<String, Float> vanillaSlipperinessMap;
-
     public static HashMap<String, Float> slipperinessMap;
-
-    public enum PerBlockSettingType {
-        jumpForce,
-        forwardsAccel,
-        backwardsAccel,
-        yawAccel,
-        turnForwardsAccel,
-    }
-
     public static HashMap<Integer, HashMap<String, Float>> perBlockSettings;
+    public static PaperBoatUtils plugin;
+    private final MessageUtil messageUtil = new MessageUtil(this);
+    private final PacketHandler packetHandler = new PacketHandler();
 
     public static HashMap<String, Float> getVanillaSlipperinessMap() {
         if (vanillaSlipperinessMap == null) {
             vanillaSlipperinessMap = new HashMap<>();
             for (Block b : BuiltInRegistries.BLOCK.stream().toList()) {
-                if (b.getFriction() != 0.6f){
+                if (b.getFriction() != 0.6f) {
                     vanillaSlipperinessMap.put(String.valueOf(BuiltInRegistries.BLOCK.getId(b)), b.getFriction());
                 }
             }
@@ -80,8 +73,8 @@ public class PaperBoatUtils extends JavaPlugin {
         return perBlockSettings != null && perBlockSettings.containsKey(setting.ordinal());
     }
 
-    public static float getPerBlockForBlock(PerBlockSettingType setting, String blockid){
-        return settingHasPerBlock(setting) && perBlockSettings.get(setting.ordinal()).containsKey(blockid) ? perBlockSettings.get(setting.ordinal()).get(blockid): defaultPerBlock(setting);
+    public static float getPerBlockForBlock(PerBlockSettingType setting, String blockid) {
+        return settingHasPerBlock(setting) && perBlockSettings.get(setting.ordinal()).containsKey(blockid) ? perBlockSettings.get(setting.ordinal()).get(blockid) : defaultPerBlock(setting);
     }
 
     public static float getNearbySetting(Boat instance, PerBlockSettingType setting) {
@@ -105,24 +98,35 @@ public class PaperBoatUtils extends JavaPlugin {
                     if (r > 0 && (s == k || s == l - 1)) continue;
                     mutable.set(p, s, q);
                     BlockState blockState = instance.level().getBlockState(mutable);
-                    if (blockState.getBlock() instanceof WaterlilyBlock || !Shapes.joinIsNotEmpty(blockState.getCollisionShape(instance.level(), mutable).move(p, s, q), voxelShape, BooleanOp.AND)) continue;
+                    if (blockState.getBlock() instanceof WaterlilyBlock || !Shapes.joinIsNotEmpty(blockState.getCollisionShape(instance.level(), mutable).move(p, s, q), voxelShape, BooleanOp.AND))
+                        continue;
                     f += getPerBlockForBlock(setting, String.valueOf(BuiltInRegistries.BLOCK.getId(blockState.getBlock())));
                     ++o;
                 }
             }
         }
         if (o == 0) return getPerBlockForBlock(setting, "minecraft:air");
-        return f / (float)o;
+        return f / (float) o;
     }
 
     public static float defaultPerBlock(PerBlockSettingType setting) {
         switch (setting) {
-            case yawAccel -> {return yawAcceleration;}
-            case jumpForce -> {return jumpForce;}
-            case forwardsAccel -> {return forwardsAcceleration;}
-            case backwardsAccel -> {return backwardsAcceleration;}
-            case turnForwardsAccel -> {return turningForwardsAcceleration;}
-        };
+            case yawAccel -> {
+                return yawAcceleration;
+            }
+            case jumpForce -> {
+                return jumpForce;
+            }
+            case forwardsAccel -> {
+                return forwardsAcceleration;
+            }
+            case backwardsAccel -> {
+                return backwardsAcceleration;
+            }
+            case turnForwardsAccel -> {
+                return turningForwardsAcceleration;
+            }
+        }
         return 0;// unreachable but java compiler hates me (personally)
     }
 
@@ -133,7 +137,7 @@ public class PaperBoatUtils extends JavaPlugin {
         return slipperinessMap;
     }
 
-    public static void resetSettings(){
+    public static void resetSettings() {
         enabled = false;
         stepSize = 0f;
         fallDamage = true;
@@ -158,34 +162,34 @@ public class PaperBoatUtils extends JavaPlugin {
         canStepWhileFalling = false;
     }
 
-    public static void setStepSize(float stepsize){
-        enabled = true;
-        stepSize = stepsize;
-    }
-
-    public static void setBlocksSlipperiness(List<String> blocks, float slipperiness){
+    public static void setBlocksSlipperiness(List<String> blocks, float slipperiness) {
         enabled = true;
         for (String block : blocks) {
             setBlockSlipperiness(block, slipperiness);
         }
     }
 
-    public static void setAllBlocksSlipperiness(float slipperiness){
+    public static void setAllBlocksSlipperiness(float slipperiness) {
         enabled = true;
         defaultSlipperiness = slipperiness;
     }
 
-    static void setBlockSlipperiness(String block, float slipperiness){
+    static void setBlockSlipperiness(String block, float slipperiness) {
         getSlipperinessMap().put(block, slipperiness);
     }
 
-    public static float getBlockSlipperiness(String block){
+    public static float getBlockSlipperiness(String block) {
         if (getSlipperinessMap().containsKey(block)) return getSlipperinessMap().get(block);
         return defaultSlipperiness;
     }
 
     public static float getStepSize() {
         return stepSize;
+    }
+
+    public static void setStepSize(float stepsize) {
+        enabled = true;
+        stepSize = stepsize;
     }
 
     public static void setFallDamage(boolean newValue) {
@@ -196,16 +200,6 @@ public class PaperBoatUtils extends JavaPlugin {
     public static void setWaterElevation(boolean newValue) {
         enabled = true;
         waterElevation = newValue;
-    }
-
-    public static void setAirControl(boolean newValue) {
-        enabled = true;
-        airControl = newValue;
-    }
-
-    public static void setJumpForce(float newValue) {
-        enabled = true;
-        jumpForce = newValue;
     }
 
     //? >=1.21 {
@@ -229,28 +223,37 @@ public class PaperBoatUtils extends JavaPlugin {
     }
     *///?}
 
+    public static void setAirControl(boolean newValue) {
+        enabled = true;
+        airControl = newValue;
+    }
 
-    public static void setGravityForce(double g){
+    public static void setJumpForce(float newValue) {
+        enabled = true;
+        jumpForce = newValue;
+    }
+
+    public static void setGravityForce(double g) {
         enabled = true;
         gravityForce = g;
     }
 
-    public static void setYawAcceleration(float accel){
+    public static void setYawAcceleration(float accel) {
         enabled = true;
         yawAcceleration = accel;
     }
 
-    public static void setForwardsAcceleration(float accel){
+    public static void setForwardsAcceleration(float accel) {
         enabled = true;
         forwardsAcceleration = accel;
     }
 
-    public static void setBackwardsAcceleration(float accel){
+    public static void setBackwardsAcceleration(float accel) {
         enabled = true;
         backwardsAcceleration = accel;
     }
 
-    public static void setTurningForwardsAcceleration(float accel){
+    public static void setTurningForwardsAcceleration(float accel) {
         enabled = true;
         turningForwardsAcceleration = accel;
     }
@@ -279,28 +282,29 @@ public class PaperBoatUtils extends JavaPlugin {
         enabled = true;
         waterJumping = value;
     }
+
     public static void setSwimForce(float value) {
         enabled = true;
         swimForce = value;
     }
+
     public static void breakSlimePlease() {
         enabled = true;
-        if (getSlipperinessMap().containsKey("minecraft:slime_block")) {
-            getSlipperinessMap().remove("minecraft:slime_block");
-        }
+        getSlipperinessMap().remove("minecraft:slime_block");
     }
+
     public static void removeBlockSlipperiness(String block) {
         enabled = true;
-        if (getSlipperinessMap().containsKey(block)) {
-            getSlipperinessMap().remove(block);
-        }
+        getSlipperinessMap().remove(block);
     }
+
     public static void removeBlocksSlipperiness(List<String> blocks) {
         enabled = true;
         for (String block : blocks) {
             removeBlockSlipperiness(block);
         }
     }
+
     public static void clearSlipperinessMap() {
         enabled = true;
         slipperinessMap = new HashMap<>();
@@ -339,19 +343,20 @@ public class PaperBoatUtils extends JavaPlugin {
             map.put(block, value);
         }
     }
+
     public static void setBlockSetting(PerBlockSettingType setting, String block, float value) {
         ArrayList<String> blocks = new ArrayList<>();
         blocks.add(block);
         setBlocksSetting(setting, blocks, value);
     }
 
+    public static CollisionMode getCollisionMode() {
+        return collision;
+    }
+
     public static void setCollisionMode(CollisionMode mode) {
         enabled = true;
         collision = mode;
-    }
-
-    public static CollisionMode getCollisionMode() {
-        return collision;
     }
 
     public static boolean canStepWhileFalling() {
@@ -362,25 +367,30 @@ public class PaperBoatUtils extends JavaPlugin {
         PaperBoatUtils.canStepWhileFalling = canStepWhileFalling;
     }
 
-    public static PaperBoatUtils instance;
-
-    private static double wronglyBackup = SpigotConfig.movedWronglyThreshold;
-    private static double tooQuicklyBackup = SpigotConfig.movedTooQuicklyMultiplier;
-
     @Override
     public void onEnable() {
-        instance = this;
+        plugin = this;
+        messageUtil.getMessengerManager().register(packetHandler);
+        messageUtil.enable();
         //SpigotConfig.movedWronglyThreshold = Double.MAX_VALUE;
         //SpigotConfig.movedTooQuicklyMultiplier = Double.MAX_VALUE;
+        Bukkit.getPluginManager().registerEvents(new PacketHandler.PlayerListener(), plugin);
         ModCommands.registerCommands();
         PluginCommands.registerCommands();
-        PacketHandler.init();
     }
 
     @Override
     public void onDisable() {
         SpigotConfig.movedTooQuicklyMultiplier = tooQuicklyBackup;
         SpigotConfig.movedWronglyThreshold = wronglyBackup;
-        PacketHandler.disable();
+        messageUtil.disable();
+    }
+
+    public enum PerBlockSettingType {
+        jumpForce,
+        forwardsAccel,
+        backwardsAccel,
+        yawAccel,
+        turnForwardsAccel,
     }
 }

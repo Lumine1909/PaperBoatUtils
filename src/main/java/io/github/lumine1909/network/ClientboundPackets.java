@@ -29,5 +29,5 @@ public enum ClientboundPackets {
     EXCLUSIVE_MODE_SERIES,
     SET_PER_BLOCK,
     SET_COLLISION_MODE,
-    SET_STEP_WHILE_FALLING;
+    SET_STEP_WHILE_FALLING
 }

@@ -20,12 +20,12 @@ public enum Modes {
     JUMP_BLOCKS,//16
     BOOSTER_BLOCKS,//17
     DEFAULT_ICE,//18
-    DEFAULT_BLUE_ICE,//19
+    DEFAULT_NINE_EIGHT_FIVE,//19
     NOCOL_BOATS_AND_PLAYERS,//20
     NOCOL_ALL_ENTITIES,//21
     BA_JANKLESS,//22
-    BA_BLUE_JANKLESS//23
-    ;
+    BA_BLUE_JANKLESS,//23
+    DEFAULT_BLUE_ICE;
 
     public static void setMode(Modes mode) {
         switch (mode) {
@@ -154,7 +154,7 @@ public enum Modes {
             case DEFAULT_ICE:
                 PaperBoatUtils.setAllBlocksSlipperiness(0.98f);
                 return;
-            case DEFAULT_BLUE_ICE:
+            case DEFAULT_NINE_EIGHT_FIVE:
                 PaperBoatUtils.setAllBlocksSlipperiness(0.985f);
                 return;
             case NOCOL_BOATS_AND_PLAYERS:
@@ -177,6 +177,8 @@ public enum Modes {
                 PaperBoatUtils.setStepSize(1.25f);
                 PaperBoatUtils.setWaterElevation(true);
                 return;
+            case DEFAULT_BLUE_ICE:
+                PaperBoatUtils.setAllBlocksSlipperiness(0.989f);
         }
     }
 }
